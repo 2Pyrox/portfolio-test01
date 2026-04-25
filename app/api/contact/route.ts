@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 
-interface ContactPayload {
-  name: string;
-  email: string;
-  message: string;
-}
 
 export async function POST(req: NextRequest) {
   let body: unknown;
@@ -32,10 +27,6 @@ export async function POST(req: NextRequest) {
   if (Object.keys(errors).length > 0) {
     return NextResponse.json({ errors }, { status: 422 });
   }
-
-  const payload = body as ContactPayload;
-
-  const { name, email, message } = payload;
 
   const ownerEmail = process.env.CONTACT_OWNER_EMAIL ?? "htmoondev@gmail.com";
   const smtpUser = process.env.SMTP_USER;
