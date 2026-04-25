@@ -7,15 +7,6 @@ interface ContactPayload {
   message: string;
 }
 
-function validatePayload(body: unknown): body is ContactPayload {
-  if (!body || typeof body !== "object") return false;
-  const { name, email, message } = body as Record<string, unknown>;
-  if (typeof name !== "string" || name.trim().length < 2) return false;
-  if (typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return false;
-  if (typeof message !== "string" || message.trim().length < 10) return false;
-  return true;
-}
-
 export async function POST(req: NextRequest) {
   let body: unknown;
   try {
@@ -24,11 +15,27 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
-  if (!validatePayload(body)) {
-    return NextResponse.json({ error: "Invalid or missing fields." }, { status: 422 });
+  if (!body || typeof body !== "object") {
+    return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
-  const { name, email, message } = body;
+  const { name, email, message } = body as Record<string, unknown>;
+  const errors: Record<string, string> = {};
+
+  if (typeof name !== "string" || name.trim().length < 1)
+    errors.name = "Name is required.";
+  if (typeof email !== "string" || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    errors.email = "A valid email address is required.";
+  if (typeof message !== "string" || message.trim().length < 2)
+    errors.message = "Message is required.";
+
+  if (Object.keys(errors).length > 0) {
+    return NextResponse.json({ errors }, { status: 422 });
+  }
+
+  const payload = body as ContactPayload;
+
+  const { name, email, message } = payload;
 
   const ownerEmail = process.env.CONTACT_OWNER_EMAIL ?? "htmoondev@gmail.com";
   const smtpUser = process.env.SMTP_USER;

@@ -55,6 +55,10 @@ export default function ContactSection() {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
+        if (data?.errors) {
+          const messages = Object.values(data.errors as Record<string, string>).join(" ");
+          throw new Error(messages);
+        }
         throw new Error(data?.error ?? "Something went wrong. Please try again.");
       }
 
