@@ -78,7 +78,6 @@
     letter-spacing: 0.04em;
     text-transform: uppercase;
     font-size: 0.75rem;
-    focus-visible:ring-color: var(--gold);
   }
 
   .btn-primary:hover {
