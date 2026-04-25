@@ -20,6 +20,7 @@ export default function ContactSection() {
   const inView = useInView(ref, { once: true, margin: "-80px" });
 
   const [fields, setFields] = useState<FieldState>(INITIAL);
+  const [submittedEmail, setSubmittedEmail] = useState<string>("");
   const [status, setStatus] = useState<FormStatus>("idle");
   const [serverError, setServerError] = useState<string>("");
 
@@ -32,8 +33,15 @@ export default function ContactSection() {
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
+    // Read from FormData so browser autofill values are captured even if onChange didn't fire
+    const fd = new FormData(e.currentTarget);
+    const name = ((fd.get("name") as string) ?? "").trim();
+    const email = ((fd.get("email") as string) ?? "").trim();
+    const message = ((fd.get("message") as string) ?? "").trim();
+    const website = (fd.get("website") as string) ?? "";
+
     // Honeypot gate -- bots fill this, humans leave it blank
-    if (fields.website) return;
+    if (website) return;
 
     setStatus("submitting");
     setServerError("");
@@ -42,11 +50,7 @@ export default function ContactSection() {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: fields.name,
-          email: fields.email,
-          message: fields.message,
-        }),
+        body: JSON.stringify({ name, email, message }),
       });
 
       if (!res.ok) {
@@ -54,6 +58,7 @@ export default function ContactSection() {
         throw new Error(data?.error ?? "Something went wrong. Please try again.");
       }
 
+      setSubmittedEmail(email);
       setStatus("success");
       setFields(INITIAL);
     } catch (err) {
@@ -100,7 +105,7 @@ export default function ContactSection() {
               </p>
               <p className="mt-2 text-sm text-green-700">
                 Thank you for reaching out. I will reply to{" "}
-                <strong>{fields.email || "your email"}</strong> shortly.
+                <strong>{submittedEmail || "your email"}</strong> shortly.
               </p>
               <button
                 className="btn-outline mt-6"
