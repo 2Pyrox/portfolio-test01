@@ -28,6 +28,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ errors }, { status: 422 });
   }
 
+  const safeName = name as string;
+  const safeEmail = email as string;
+  const safeMessage = message as string;
+
   const ownerEmail = process.env.CONTACT_OWNER_EMAIL ?? "htmoondev@gmail.com";
   const smtpUser = process.env.SMTP_USER;
   const smtpPass = process.env.SMTP_PASS;
@@ -53,24 +57,24 @@ export async function POST(req: NextRequest) {
   const ownerMail = {
     from: `"Portfolio Contact" <${smtpUser}>`,
     to: ownerEmail,
-    subject: `New message from ${name}`,
-    text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
+    subject: `New message from ${safeName}`,
+    text: `Name: ${safeName}\nEmail: ${safeEmail}\n\nMessage:\n${safeMessage}`,
     html: `
-      <p><strong>Name:</strong> ${name}</p>
-      <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
+      <p><strong>Name:</strong> ${safeName}</p>
+      <p><strong>Email:</strong> <a href="mailto:${safeEmail}">${safeEmail}</a></p>
       <hr />
-      <p>${message.replace(/\n/g, "<br />")}</p>
+      <p>${safeMessage.replace(/\n/g, "<br />")}</p>
     `,
   };
 
   // Auto-reply to visitor
   const replyMail = {
     from: `"Portfolio" <${smtpUser}>`,
-    to: email,
+    to: safeEmail,
     subject: "Got your message — I will be in touch soon.",
-    text: `Hi ${name},\n\nThank you for reaching out. I have received your message and will reply within one business day.\n\nBest,\nMaurice`,
+    text: `Hi ${safeName},\n\nThank you for reaching out. I have received your message and will reply within one business day.\n\nBest,\nMaurice`,
     html: `
-      <p>Hi ${name},</p>
+      <p>Hi ${safeName},</p>
       <p>Thank you for reaching out. I have received your message and will reply within one business day.</p>
       <p>Best,<br />Maurice</p>
     `,
