@@ -4,95 +4,87 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import PlaceholderLogo from "./PlaceholderLogo";
+import Image from "next/image";
 
 const NAV_LINKS = [
-  { label: "Home", href: "/" },
-  { label: "About", href: "/about" },
+  { label: "Home",      href: "/" },
+  { label: "About",     href: "/about" },
   { label: "Portfolio", href: "/portfolio" },
-  { label: "Contact", href: "/#contact" },
+  { label: "Contact",   href: "/#contact" },
 ] as const;
 
 export default function NavBar() {
-  const pathname = usePathname();
+  const pathname  = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 12);
+    const handler = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handler, { passive: true });
     return () => window.removeEventListener("scroll", handler);
   }, []);
 
-  // Close mobile menu on route change
-  useEffect(() => {
-    setMenuOpen(false);
-  }, [pathname]);
+  useEffect(() => { setMenuOpen(false); }, [pathname]);
 
-  const isActive = (href: string) => {
-    if (href === "/") return pathname === "/";
-    return pathname.startsWith(href.replace("/#", "/"));
-  };
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href.replace("/#", "/"));
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
         scrolled
-          ? "bg-white/90 shadow-sm backdrop-blur-md"
+          ? "border-b border-[#1a1a1e] bg-[#0c0c0e]/90 backdrop-blur-xl"
           : "bg-transparent"
       }`}
     >
       <div className="container-content flex h-16 items-center justify-between">
+
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2.5 shrink-0">
-          <PlaceholderLogo size={36} />
-          <span className="hidden text-sm font-semibold text-ink sm:block">
-            Portfolio
-          </span>
+        <Link href="/" className="flex items-center gap-3 shrink-0 group">
+          <div className="relative h-9 w-9">
+            <Image
+              src="/logo.png"
+              alt="Logo"
+              fill
+              sizes="36px"
+              className="object-contain"
+              style={{ filter: "invert(1) brightness(0.92)" }}
+              priority
+            />
+          </div>
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Main navigation">
+        <nav className="hidden items-center gap-0 md:flex" aria-label="Main navigation">
           {NAV_LINKS.map(({ label, href }) => (
             <Link
               key={href}
               href={href}
-              className={`rounded-md px-3 py-2 text-sm font-medium transition-colors duration-150 ${
+              className={`relative px-4 py-2 text-xs font-medium uppercase tracking-[0.15em] transition-colors duration-200 ${
                 isActive(href)
-                  ? "bg-brand-50 text-brand-700"
-                  : "text-ink-muted hover:bg-surface-muted hover:text-ink"
+                  ? "text-[#c9a96e]"
+                  : "text-[#7a7874] hover:text-[#f2efe9]"
               }`}
             >
               {label}
+              {isActive(href) && (
+                <span className="absolute bottom-0 left-4 right-4 h-px bg-[#c9a96e] opacity-60" />
+              )}
             </Link>
           ))}
         </nav>
 
         {/* Mobile hamburger */}
         <button
-          className="flex h-10 w-10 items-center justify-center rounded-lg text-ink-muted transition-colors hover:bg-surface-muted md:hidden"
+          className="flex h-10 w-10 items-center justify-center text-[#7a7874] transition-colors hover:text-[#f2efe9] md:hidden"
           onClick={() => setMenuOpen((o) => !o)}
           aria-label={menuOpen ? "Close menu" : "Open menu"}
           aria-expanded={menuOpen}
         >
-          <span className="sr-only">{menuOpen ? "Close" : "Menu"}</span>
-          {/* Animated bars */}
           <div className="relative flex h-5 w-5 flex-col justify-between">
-            <span
-              className={`block h-0.5 w-full bg-current transition-all duration-200 origin-center ${
-                menuOpen ? "translate-y-2 rotate-45" : ""
-              }`}
-            />
-            <span
-              className={`block h-0.5 w-full bg-current transition-opacity duration-200 ${
-                menuOpen ? "opacity-0" : "opacity-100"
-              }`}
-            />
-            <span
-              className={`block h-0.5 w-full bg-current transition-all duration-200 origin-center ${
-                menuOpen ? "-translate-y-2 -rotate-45" : ""
-              }`}
-            />
+            <span className={`block h-px w-full bg-current transition-all duration-300 origin-center ${menuOpen ? "translate-y-2.5 rotate-45" : ""}`} />
+            <span className={`block h-px w-full bg-current transition-opacity duration-200 ${menuOpen ? "opacity-0" : "opacity-100"}`} />
+            <span className={`block h-px w-full bg-current transition-all duration-300 origin-center ${menuOpen ? "-translate-y-2.5 -rotate-45" : ""}`} />
           </div>
         </button>
       </div>
@@ -102,24 +94,19 @@ export default function NavBar() {
         {menuOpen && (
           <motion.div
             key="mobile-menu"
-            initial={{ opacity: 0, y: -8 }}
+            initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.18 }}
-            className="border-t border-surface-border bg-white/95 backdrop-blur-md md:hidden"
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.2 }}
+            className="border-t border-[#1a1a1e] bg-[#0c0c0e]/95 backdrop-blur-xl md:hidden"
           >
-            <nav
-              className="container-content flex flex-col gap-1 py-4"
-              aria-label="Mobile navigation"
-            >
+            <nav className="container-content flex flex-col py-4" aria-label="Mobile navigation">
               {NAV_LINKS.map(({ label, href }) => (
                 <Link
                   key={href}
                   href={href}
-                  className={`rounded-md px-4 py-3 text-sm font-medium transition-colors duration-150 ${
-                    isActive(href)
-                      ? "bg-brand-50 text-brand-700"
-                      : "text-ink-muted hover:bg-surface-muted hover:text-ink"
+                  className={`px-2 py-3.5 text-xs font-medium uppercase tracking-[0.15em] transition-colors duration-150 border-b border-[#1a1a1e] last:border-0 ${
+                    isActive(href) ? "text-[#c9a96e]" : "text-[#7a7874] hover:text-[#f2efe9]"
                   }`}
                 >
                   {label}

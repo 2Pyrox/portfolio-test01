@@ -6,6 +6,8 @@
   :root {
     --font-inter: "Inter", system-ui, sans-serif;
     --font-mono: "JetBrains Mono", monospace;
+    --gold: #c9a96e;
+    --gold-dim: rgba(201, 169, 110, 0.12);
   }
 
   html {
@@ -16,6 +18,18 @@
 
   body {
     @apply bg-surface text-ink font-sans;
+    background-color: #0c0c0e;
+  }
+
+  /* Grain texture overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.035;
+    pointer-events: none;
+    z-index: 9999;
   }
 
   *,
@@ -24,13 +38,9 @@
     box-sizing: border-box;
   }
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    @apply font-semibold tracking-tight;
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold tracking-tight;
+    color: #f2efe9;
   }
 
   a {
@@ -39,6 +49,11 @@
 
   img {
     @apply max-w-full;
+  }
+
+  ::selection {
+    background-color: rgba(201, 169, 110, 0.25);
+    color: #f2efe9;
   }
 }
 
@@ -51,29 +66,88 @@
     @apply py-section-sm md:py-section;
   }
 
+  /* Primary button — gold fill */
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-lg bg-brand-600 px-6 py-3 text-sm font-semibold text-white
-           transition-all duration-200 hover:bg-brand-700 hover:-translate-y-0.5 hover:shadow-lg
-           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2
+    @apply inline-flex items-center justify-center px-7 py-3.5 text-sm font-semibold tracking-wide
+           transition-all duration-200 hover:-translate-y-0.5
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-surface
            active:translate-y-0;
+    background-color: var(--gold);
+    color: #0c0c0e;
+    border-radius: 2px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    focus-visible:ring-color: var(--gold);
   }
 
+  .btn-primary:hover {
+    background-color: #d4b87a;
+    box-shadow: 0 0 24px rgba(201, 169, 110, 0.2);
+  }
+
+  /* Outline button — dark border */
   .btn-outline {
-    @apply inline-flex items-center justify-center rounded-lg border border-surface-border bg-transparent px-6 py-3
-           text-sm font-semibold text-ink transition-all duration-200
-           hover:bg-surface-muted hover:-translate-y-0.5 hover:shadow-sm
-           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2
+    @apply inline-flex items-center justify-center px-7 py-3.5 text-sm font-semibold tracking-wide
+           transition-all duration-200 hover:-translate-y-0.5
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-surface
            active:translate-y-0;
+    border: 1px solid #2e2e32;
+    color: #f2efe9;
+    background: transparent;
+    border-radius: 2px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
   }
 
+  .btn-outline:hover {
+    border-color: var(--gold);
+    color: var(--gold);
+  }
+
+  /* Form inputs */
   .form-input {
-    @apply w-full rounded-lg border border-surface-border bg-surface px-4 py-3 text-sm text-ink placeholder:text-ink-subtle
-           transition-colors duration-150 outline-none
-           focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20;
+    @apply w-full px-4 py-3.5 text-sm outline-none transition-colors duration-150;
+    background: #111114;
+    border: 1px solid #1e1e22;
+    color: #f2efe9;
+    border-radius: 2px;
   }
 
+  .form-input::placeholder {
+    color: #3a3836;
+  }
+
+  .form-input:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(201, 169, 110, 0.08);
+  }
+
+  /* Tag pill */
   .tag-pill {
-    @apply inline-block rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700;
+    @apply inline-block px-2.5 py-0.5 text-xs font-medium tracking-wide;
+    background: rgba(201, 169, 110, 0.08);
+    color: var(--gold);
+    border: 1px solid rgba(201, 169, 110, 0.2);
+    border-radius: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* Decorative horizontal rule */
+  .rule-gold {
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold), transparent);
+    border: none;
+    opacity: 0.3;
+  }
+
+  /* Section label */
+  .label-overline {
+    @apply text-xs font-semibold uppercase tracking-widest;
+    color: var(--gold);
+    letter-spacing: 0.2em;
   }
 }
 
@@ -92,5 +166,13 @@
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border-width: 0;
+  }
+
+  .text-gold {
+    color: var(--gold);
+  }
+
+  .border-gold {
+    border-color: var(--gold);
   }
 }
